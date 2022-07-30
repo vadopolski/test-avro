@@ -1,15 +1,20 @@
-package com.example.v1;
+package com.example.specific.v2;
 
-import com.example.Customer;
-//import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import com.example.Customer2;
+import io.confluent.kafka.serializers.KafkaAvroDeserializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.util.Collections;
 import java.util.Properties;
 
 
-public class Producer {
-
+public class AvroSchemaRegistryProducerV2 {
     public static void main(String[] args) {
         Properties properties = new Properties();
         // normal producer
@@ -18,24 +23,25 @@ public class Producer {
         properties.setProperty("retries", "10");
         // avro part
         properties.setProperty("key.serializer", StringSerializer.class.getName());
-//        properties.setProperty("value.serializer", KafkaAvroSerializer.class.getName());
+        properties.setProperty("value.serializer", KafkaAvroSerializer.class.getName());
         properties.setProperty("schema.registry.url", "http://127.0.0.1:8081");
 
-        org.apache.kafka.clients.producer.Producer<String, Customer> producer = new KafkaProducer<String, Customer>(properties);
+        Producer<String, Customer2> producer = new KafkaProducer<String, Customer2>(properties);
 
-        String topic = "customer-avro";
+        String topic = "customer-avro2";
 
         // copied from avro examples
-        Customer customer = Customer.newBuilder()
+        Customer2 customer = Customer2.newBuilder()
                 .setAge(34)
-                .setAutomatedEmail(false)
                 .setFirstName("John")
                 .setLastName("Doe")
                 .setHeight(178f)
                 .setWeight(75f)
+                .setEmail("john.doe@gmail.com")
+                .setPhoneNumber("(123)-456-7890")
                 .build();
 
-        ProducerRecord<String, Customer> producerRecord = new ProducerRecord<String, Customer>(
+        ProducerRecord<String, Customer2> producerRecord = new ProducerRecord<String, Customer2>(
                 topic, customer
         );
 
